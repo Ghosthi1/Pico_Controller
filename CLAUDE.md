@@ -1,0 +1,56 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+Embedded Rust firmware for a Raspberry Pi Pico 2W (RP2350, ARM Cortex-M33) acting as a USB HID game controller.
+
+## Target Platform
+
+- **MCU**: RP2350 (dual Cortex-M33)
+- **Board**: Raspberry Pi Pico 2W
+- **Rust target**: `thumbv8m.main-none-eabihf`
+- **Paradigm**: `#![no_std]` + `#![no_main]`
+
+## Build & Flash
+
+This project is not yet configured for the embedded target. The following setup is needed before building:
+
+1. Install the target: `rustup target add thumbv8m.main-none-eabihf`
+2. Install a flashing tool: `cargo install probe-rs-tools` (for probe/SWD) or `cargo install elf2uf2-rs` (for UF2/USB bootloader)
+3. Create `.cargo/config.toml` specifying the target and runner
+4. Add `memory.x` linker script for the RP2350
+
+Typical build once configured:
+```
+cargo build --release
+```
+
+Flash via UF2 (hold BOOTSEL, plug in, run):
+```
+elf2uf2-rs target/thumbv8m.main-none-eabihf/release/Pico_controller
+```
+
+Flash via probe-rs (SWD debug probe):
+```
+cargo run --release
+```
+
+## Recommended Crates
+
+The project has no dependencies yet. For a USB HID game controller on Pico 2W:
+
+- **`embassy-rp`** + **`embassy-usb`** — async HAL with built-in USB HID support (preferred for new projects)
+- **`rp235x-hal`** — bare-metal HAL if async is not needed
+- **`usbd-hid`** — USB HID descriptor/report generation
+- **`cortex-m`** + **`cortex-m-rt`** — core Cortex-M runtime (required by both HAL approaches)
+
+## Architecture Intent
+
+The firmware will expose the Pico 2W as a USB HID gamepad. Key concerns:
+
+- **Input polling**: Read GPIO pins for buttons/axes on a fixed schedule (e.g., 1 ms interval)
+- **USB HID reports**: Pack button/axis state into a HID report descriptor and send via USB
+- **Wireless (optional)**: The 2W has CYW43439 Wi-Fi/BT; BLE HID is an alternative to USB
+- **`no_std`**: No heap allocator by default; use fixed-size buffers and `heapless` if collections are needed
