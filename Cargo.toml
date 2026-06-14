@@ -9,3 +9,4 @@ cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.7.5"
 rp235x-hal = "0.3.0"
 usbd-hid = "0.10.0"
+embedded-hal = "1.0.0"
