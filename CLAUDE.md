@@ -26,31 +26,40 @@ Embedded Rust firmware for a Raspberry Pi Pico 2W (RP2350, ARM Cortex-M33) actin
 
 ## Build & Flash
 
-This project is not yet configured for the embedded target. The following setup is needed before building:
+The project is configured and compiles successfully.
 
-1. Install the target: `rustup target add thumbv8m.main-none-eabihf`
-2. Install a flashing tool: `cargo install probe-rs-tools` (for probe/SWD) or `cargo install elf2uf2-rs` (for UF2/USB bootloader)
-3. Create `.cargo/config.toml` specifying the target and runner
-4. Add `memory.x` linker script for the RP2350
+**Toolchain setup (already done):**
+- Target installed: `thumbv8m.main-none-eabihf`
+- `.cargo/config.toml` sets the default target and runner (`picotool load -x -t elf`)
+- `memory.x` linker script present (2048K FLASH at 0x10000000, 520K RAM at 0x20000000)
+- `picotool` is installed
 
-Typical build once configured:
+**Build:**
 ```
 cargo build --release
 ```
 
-Flash via UF2 (hold BOOTSEL, plug in, run):
-```
-elf2uf2-rs target/thumbv8m.main-none-eabihf/release/Pico_controller
-```
-
-Flash via probe-rs (SWD debug probe):
+**Flash via `cargo run`** (hold BOOTSEL, plug in Pico, then release BOOTSEL — Pico enumerates as USB device):
 ```
 cargo run --release
 ```
+This invokes the runner: `picotool load -x -t elf <elf-path>` automatically.
+
+**Flash manually via picotool** (same BOOTSEL mode, but run picotool directly):
+```
+picotool load -x -t elf target/thumbv8m.main-none-eabihf/release/Pico_controller
+```
+
+## Current State
+
+- `src/main.rs` compiles: bare `#![no_std]` + `#![no_main]` skeleton with `rp235x-hal`, infinite loop, no peripherals used yet
+- `hal::block::ImageDef::secure_exe()` image header present (required by RP2350 bootrom)
+- Dependencies: `panic-halt`, `cortex-m`, `cortex-m-rt`, `rp235x-hal`, `usbd-hid`
+- Next step: flash the skeleton and confirm USB enumeration / LED blink to prove the toolchain works end-to-end
 
 ## Recommended Crates
 
-The project has no dependencies yet. For a USB HID game controller on Pico 2W:
+For a USB HID game controller on Pico 2W:
 
 - **`embassy-rp`** + **`embassy-usb`** — async HAL with built-in USB HID support (preferred for new projects)
 - **`rp235x-hal`** — bare-metal HAL if async is not needed
