@@ -57,6 +57,18 @@ The project has no dependencies yet. For a USB HID game controller on Pico 2W:
 - **`usbd-hid`** — USB HID descriptor/report generation
 - **`cortex-m`** + **`cortex-m-rt`** — core Cortex-M runtime (required by both HAL approaches)
 
+## Physical Documentation (Photo Checkpoints)
+
+Prompt the user to take a photo at these moments — each one captures state that is hard to reconstruct later:
+
+1. **Before first wiring** — bare Pico 2W and all components laid out, so you have a clean reference of what everything looks like unpowered and unconnected.
+2. **After each wiring milestone** — every time a new component (button, joystick, resistor bank, etc.) is fully connected and tested, photograph it before moving on. Mistakes compound; a photo lets you diff what changed.
+3. **First successful flash** — the moment the firmware runs on real hardware for the first time. Capture the Pico plugged in and any indicator (LED, USB enumeration on the host) visible.
+4. **Before any rewire or destructive change** — if you're pulling wires or moving components, photo first.
+5. **Final assembly** — completed wiring before any enclosure goes on, both top and underside if applicable.
+
+When reminding the user, say something like: "Good checkpoint — worth a photo before we move on."
+
 ## Architecture Intent
 
 The firmware will expose the Pico 2W as a USB HID gamepad. Key concerns:
