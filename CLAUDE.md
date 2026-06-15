@@ -52,10 +52,17 @@ picotool load -x -t elf target/thumbv8m.main-none-eabihf/release/Pico_controller
 
 ## Current State
 
-- `src/main.rs` compiles: bare `#![no_std]` + `#![no_main]` skeleton with `rp235x-hal`, infinite loop, no peripherals used yet
+- Toolchain proven end-to-end: compiles, flashes, runs on hardware
 - `hal::block::ImageDef::secure_exe()` image header present (required by RP2350 bootrom)
-- Dependencies: `panic-halt`, `cortex-m`, `cortex-m-rt`, `rp235x-hal`, `usbd-hid`
-- Next step: flash the skeleton and confirm USB enumeration / LED blink to prove the toolchain works end-to-end
+- Dependencies: `panic-halt`, `cortex-m`, `cortex-m-rt`, `rp235x-hal`, `usbd-hid`, `embedded-hal = "1.0"`
+- **Onboard LED is behind the CYW43439 chip** — requires wireless driver to use; an external LED on GP28 is being used instead
+- **Working hardware on breadboard:**
+  - External LED + resistor on GP28 (push-pull output)
+  - 4 buttons on GP2, GP3, GP4, GP5 (internal pull-up inputs — pressed = LOW)
+- **Current firmware behaviour:** LED on by default; any button press turns it off; 500 ms delay between polls
+- **Pin assignments so far:** GP2=right, GP3=middle-right, GP4=middle-left, GP5=left button
+- **Lessons learned during wiring:** LED polarity (long leg = anode), button orientation (must span breadboard centre gap), breadboard rows vs columns
+- Next step: USB HID — make the Pico enumerate as a gamepad and send button state as HID reports
 
 ## Recommended Crates
 
