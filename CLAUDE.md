@@ -54,15 +54,15 @@ picotool load -x -t elf target/thumbv8m.main-none-eabihf/release/Pico_controller
 
 - Toolchain proven end-to-end: compiles, flashes, runs on hardware
 - `hal::block::ImageDef::secure_exe()` image header present (required by RP2350 bootrom)
-- Dependencies: `panic-halt`, `cortex-m`, `cortex-m-rt`, `rp235x-hal`, `usbd-hid`, `embedded-hal = "1.0"`
+- Dependencies: `panic-halt`, `cortex-m`, `cortex-m-rt`, `rp235x-hal`, `usbd-hid`, `usb-device`, `embedded-hal = "1.0"`
 - **Onboard LED is behind the CYW43439 chip** — requires wireless driver to use; an external LED on GP28 is being used instead
 - **Working hardware on breadboard:**
   - External LED + resistor on GP28 (push-pull output)
   - 4 buttons on GP2, GP3, GP4, GP5 (internal pull-up inputs — pressed = LOW)
-- **Current firmware behaviour:** LED on by default; any button press turns it off; 500 ms delay between polls
-- **Pin assignments so far:** GP2=right, GP3=middle-right, GP4=middle-left, GP5=left button
+- **USB HID is working:** Pico enumerates as a gamepad; button presses are visible in `joy.cpl` on Windows
+- **Current firmware behaviour:** Pico enumerates as a USB HID gamepad; each button maps to a HID button bit; LED reflects button state
+- **Pin assignments:** GP2=right, GP3=middle-right, GP4=middle-left, GP5=left button
 - **Lessons learned during wiring:** LED polarity (long leg = anode), button orientation (must span breadboard centre gap), breadboard rows vs columns
-- Next step: USB HID — make the Pico enumerate as a gamepad and send button state as HID reports
 
 ## Recommended Crates
 
@@ -84,6 +84,16 @@ Prompt the user to take a photo at these moments — each one captures state tha
 5. **Final assembly** — completed wiring before any enclosure goes on, both top and underside if applicable.
 
 When reminding the user, say something like: "Good checkpoint — worth a photo before we move on."
+
+## Testing on Windows
+
+To verify button inputs are being received correctly by the host OS:
+
+1. Press **Win + R**, type `joy.cpl`, press Enter
+2. Select the Pico gamepad device and click **Properties**
+3. Press each button on the breadboard — the corresponding button should light up in the dialog
+
+This is the fastest way to confirm HID reports are being sent and the OS is interpreting them correctly, without needing any extra software.
 
 ## Architecture Intent
 
