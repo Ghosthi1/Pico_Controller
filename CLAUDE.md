@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## README
+
+Claude is allowed to edit and update `README.md` in this project as needed.
+
 ## Teaching Style
 
 This is a **learning project**. The user is here to understand embedded Rust, not just get it working. Follow these rules in every response:
