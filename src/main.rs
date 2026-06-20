@@ -8,12 +8,15 @@ use usb_device::{class_prelude::*, prelude::*};
 use usbd_hid::descriptor::generator_prelude::*;
 use usbd_hid::hid_class::HIDClass;
 
+// Tells the pico where to start
 #[link_section = ".start_block"]
 #[used]
 pub static IMAGE_DEF: hal::block::ImageDef = hal::block::ImageDef::secure_exe();
 
+// Pico 2w frequency
 const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 
+// What the USB is and what buttons exist in it
 #[gen_hid_descriptor(
     (collection = APPLICATION, usage_page = GENERIC_DESKTOP, usage = GAMEPAD) = {
         (usage_page = BUTTON, usage_min = BUTTON_1, usage_max = BUTTON_4) = {
@@ -30,10 +33,11 @@ struct GamepadReport {
     padding: u8,
 }
 
-#[hal::entry]
+#[hal::entry] // designates the start of the code
 fn main() -> ! {
-    let mut pac = hal::pac::Peripherals::take().unwrap();
+    let mut pac = hal::pac::Peripherals::take().unwrap(); //Allows peripherals ot be accessed but only by a single function at a time
 
+    // Sets up the clock for the pico
     let mut watchdog = hal::Watchdog::new(pac.WATCHDOG);
     let clocks = hal::clocks::init_clocks_and_plls(
         XTAL_FREQ_HZ,
@@ -43,8 +47,7 @@ fn main() -> ! {
         pac.PLL_USB,
         &mut pac.RESETS,
         &mut watchdog,
-    )
-        .unwrap();
+    ).unwrap();
 
     let sio = hal::Sio::new(pac.SIO);
     let pins = hal::gpio::Pins::new(
